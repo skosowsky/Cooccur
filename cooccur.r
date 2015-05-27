@@ -58,11 +58,12 @@ t.pos<-as.data.frame(rbind(Kdat[which(Kdat[,5]=="Positive"),]))
 t.neg<-as.data.frame(rbind(Kdat[which(Kdat[,5]=="Negative"),]))
 
 
-####ployly objecr####
+####ployly object####
 ploy<-plotly()
 
 trace1<-list(x=t.rand$sp1,y=t.rand$sp2,z=as.factor(t.rand$Wk),
- mode = "markers", 
+ mode = "markers",
+ name="Random",
   marker = list(
     size = 12, 
     line = list(
@@ -75,6 +76,7 @@ trace1<-list(x=t.rand$sp1,y=t.rand$sp2,z=as.factor(t.rand$Wk),
   
   trace2<-list(x=t.pos$sp1,y=t.pos$sp2,z=as.factor(t.pos$Wk),
  mode = "markers", 
+ name="Positive",
   marker = list(
     size = 12, 
     line = list(
@@ -87,6 +89,7 @@ trace1<-list(x=t.rand$sp1,y=t.rand$sp2,z=as.factor(t.rand$Wk),
   
   trace3<-list(x=t.neg$sp1,y=t.neg$sp2,z=as.factor(t.neg$Wk),
  mode = "markers", 
+ name="Negative",
   marker = list(
     size = 12, 
     line = list(
@@ -98,11 +101,6 @@ trace1<-list(x=t.rand$sp1,y=t.rand$sp2,z=as.factor(t.rand$Wk),
   type = "scatter3d")
   
   dat=list(trace1,trace2,trace3)
-  layout <- list(margin = list(
-    l = 0, 
-    r = 0, 
-    b = 0, 
-    t = 0
-  ))
-resp <- ploy$plotly(dat, kwargs=list(layout=layout, filename="simple-3d-scatter", fileopt="overwrite"))
+  layout <- list(title="Species Co-occurrence Matrix by Week", xaxis=list(title="Species 1"), yaxis=list(title="Species 2"), zaxis=list(title="Week"))
+resp <- ploy$plotly(dat, kwargs=list(layout=layout, filename="Species Co-occurrence Matrix", fileopt="overwrite"))
 resp$url
