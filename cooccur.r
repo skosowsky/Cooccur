@@ -1,9 +1,15 @@
 abundance.by.weeks <- read.csv("~/Data/abundance by weeks.csv")
 library("cooccur", lib.loc="~/R/R-3.2.0/library")
+######"plyr" is needed for count function#######
 library("plyr", lib.loc="~/R/R-3.2.0/library")
 KARA<-abundance.by.weeks
 rownames(KARA)<-KARA[,1]
 KARA<-KARA[,-1]
+
+####colmns includes 0 and the number of observations per week for the purpose of####
+####creating partitioned dataframes for each week which are used to create      ####
+####7 cooccur objects; one for each week.                                       ####
+####KARA.cooc is the list of 7 cooccur objects                                  ####
 
 colmns<-c(0,count(as.numeric(substr(colnames(KARA),6,6)))[,2])
 KARA.list<-list()
@@ -14,12 +20,15 @@ for(i in 2:8){
 	sumcols[i]=sum(colmns[1:i])
 	KARA.list[[i-1]]<-as.data.frame(cbind(KARA[,(sumcols[i-1]):sumcols[i]]))
 	KARA.cooc[[i-1]]<-cooccur(KARA.list[[i-1]],type="spp_site",thresh=T,spp_names=F)}
-	
+
+####c.KARA is a list of dataframe including species and p-values####
 c.KARA<-list()
 for(i in 1:7){
 c.KARA[[i]]<-as.data.frame(cbind(print(KARA.cooc[[i]])[,1],print(KARA.cooc[[i]])[,2],print(KARA.cooc[[i]])[,8],print(KARA.cooc[[i]])[,9]))
 colnames(c.KARA[[i]])<-c("sp1","sp2","p lt","p gt")}
 
+####K.KARA is a list of dataframes including species, p-values, and a factor####
+####for whether cooccurance was positive, negative, or random               ####
 col<-c(1,2,3,5,6,7)
 K.KARA<-list()
 for(j in 1:6){
@@ -38,13 +47,18 @@ K.KARA[[j]]<-as.data.frame(cbind(K.KARA[[j]],rep(j,dim(K.KARA[[j]])[1])))
 colnames(K.KARA[[j]])<-c("sp1","sp2","p lt","p gt","Cooccurrence","Week")}
 
 
+####Kdat is a dataframe binding all entries in K.KARA####
 Kdat<-as.data.frame(rbind(K.KARA[[1]],K.KARA[[2]],K.KARA[[3]],K.KARA[[4]],K.KARA[[5]],K.KARA[[6]]))
 Wk<-c(rep(1,3),rep(2,4),3,rep(5,10),6,7)
 Kdat<-as.data.frame(cbind(Kdat[,-6],Wk))
+
+####Partitions data into 3 dataframes for positive, negative, and random cooccurances####
 t.rand<-as.data.frame(rbind(Kdat[which(Kdat[,5]=="Random"),]))
 t.pos<-as.data.frame(rbind(Kdat[which(Kdat[,5]=="Positive"),]))
 t.neg<-as.data.frame(rbind(Kdat[which(Kdat[,5]=="Negative"),]))
 
+
+####ployly objecr####
 ploy<-plotly()
 
 trace1<-list(x=t.rand$sp1,y=t.rand$sp2,z=as.factor(t.rand$Wk),
